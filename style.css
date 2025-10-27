@@ -2,22 +2,6 @@ body{
     background: #faeddb;
 }
 
-body {
-  background: #faeddb;
-  height: auto;            /* ocupa toda a altura da tela */
-  display: flex;           /* ativa o flexbox */
-  justify-content: center; /* centraliza horizontalmente */
-    /* centraliza verticalmente */
-}
-
-.LOGO {
-  margin-left: center;
-  margin-right: center;
-  display: flex;
-  justify-content: center;    
-  align-items: center;
- align-items: center;  
-  width: 60%;            /* largura em porcentagem */
-  height: auto;          /* altura automática */                                                                                  
-  border-radius: 2%;     /* bordas arredondadas em % */
+h2 {
+    color: rgb(79, 3, 3);
 }
