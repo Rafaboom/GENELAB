@@ -198,19 +198,28 @@ button.voltar {
   background: #999;
   color: #fff;
 }
-
 /* resultado */
 .resultado {
-  margin-top: 18px;
-  padding: 12px;
+  margin-top: 24px;
+  padding: 20px;
   background: #f7faf7;
   border-radius: 10px;
   border: 1px solid rgba(0,0,0,.05);
+  text-align: center; /* centraliza o texto */
 }
 
 .resultado p {
-  margin: 6px 0;
+  margin: 8px 0;
   font-weight: 600;
+  font-size: 1.2rem; /* aumenta o tamanho do texto */
+  color: #2e3b2e;
+}
+
+.resultado strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.3rem;
+  color: #1e3a23;
 }
 
 .resultado .small {
