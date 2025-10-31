@@ -1,16 +1,67 @@
-<!DOCTYPE html> 
-<html lang="pt-BR"> 
-<head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>GENELAB</title> 
-    <link rel="stylesheet" href="style.css">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DNA MIX</title>
+  
+  <link rel="icon" type="image/png" href="img/resolução.png">
+  <link rel="stylesheet" href="style.css">
 </head>
-    <body>
-        <section>
-            <h2 class="olhos"OLHOS </h2>
-            <h2>CABELO</h2>
-            <h2>PELE</h2>
-        </section>
-    </body>
+<body>
+  <header class="topo">
+    <!-- Logo e título se quiser -->
+  </header>
+
+  <!-- TELA INICIAL -->
+  <main id="tela-inicial" class="tela inicial">
+    <p class="lead">Escolha uma das opções abaixo para começar.  
+      Selecione as características dos pais e descubra quais combinações genéticas podem aparecer nos filhos!
+    </p>
+    <div class="opcoes-container">
+      <div class="opcao" id="btnOlhos" tabindex="0" role="button" aria-label="Olhos">
+        <img src="img/olho.png" alt="Olhos">
+        <span>OLHOS</span>
+      </div>
+      <div class="opcao" id="btnPele" tabindex="0" role="button" aria-label="Pele">
+        <img src="img/pele.png" alt="Pele">
+        <span>PELE</span>
+      </div>
+      <div class="opcao" id="btnCabelo" tabindex="0" role="button" aria-label="Cabelo">
+        <img src="img/cabelo.png" alt="Cabelo">
+        <span>CABELO</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- TELA DE MISTURA -->
+  <section id="tela-mistura" class="tela mistura oculto">
+    <div class="card">
+      <h2 id="tituloCategoria">MISTURA &amp; DESCUBRA</h2>
+      <p class="instrucoes" id="instrucoes">Escolha as características dos pais e clique em <strong>Misturar</strong>.</p>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="selectMae" id="labelMae">Mãe</label>
+          <select id="selectMae"></select>
+        </div>
+
+        <div class="form-group">
+          <label for="selectPai" id="labelPai">Pai</label>
+          <select id="selectPai"></select>
+        </div>
+      </div>
+
+      <div class="botoes">
+        <button type="button" id="misturarBtn">Misturar</button>
+        <button type="button" id="resetarBtn" class="sec">Resetar</button>
+        <button type="button" id="voltarBtn" class="sec voltar">← Voltar às opções</button>
+      </div>
+
+      <div id="resultado" class="resultado" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <script src="script.Js"></script>
+</body>
 </html>
