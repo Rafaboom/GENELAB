@@ -1,308 +1,386 @@
-// --- Dados genéticos completos e equilibrados (AJUSTADOS - MEL REMOVIDO) ---
+// --- Dados genéticos COMPACTADOS (Corrigido para 3 opções) ---
 const data = {
-  olhos: {
-    phenToGen: {
-      "Preto": "PP",
-      "Castanho": "AA",
-      // "Mel": "Aa", <-- REMOVIDO
-      "Verde": "aa",
-      "Azul": "bb" // Azul é outro alelo recessivo
+    olhos: {
+        // Opções: Preto, Castanho, Verde
+        phenToGen: {
+            "Preto": "PP",       // PP
+            "Castanho": "AA",    // AA
+            "Verde": "aa"        // aa
+        },
+        options: ["Preto", "Castanho", "Verde"],
+        instructions: "Escolha as características dos dois 'pais' e veja como a 'mistura' acontece!"
     },
-    // Ordem de dominância: P > A > b > a. ('A' é Castanho, 'a' é Verde, 'b' é Azul)
-    // Se 'A' e 'a' cruzam (Aa), resulta em Castanho. Se 'a' e 'b' cruzam (ab), resulta em Azul (b domina a).
-    dominance: ["P", "A", "b", "a"], 
-    alleleToPhen: {
-      P: "Preto",
-      A: "Castanho",
-      a: "Verde",   // 'a' agora representa Verde
-      b: "Azul"
-    },
-    // REMOVIDO: "Mel"
-    options: ["Preto", "Castanho", "Verde", "Azul"],
-    instructions: "Escolha as cores dos olhos dos pais e clique em Misturar."
-  },
 
-  cabelo: {
-    phenToGen: {
-      "Preto": "BB",
-      "Castanho": "Bb",
-      "Ruivo": "Rr",
-      "Loiro": "rr"
+    cabelo: {
+        // Opções: Preto (BB), Castanho (Bb), Loiro (bb)
+        phenToGen: {
+            "Preto": "BB",
+            "Castanho": "Bb",
+            "Loiro": "bb",    
+        },
+        options: ["Preto", "Castanho", "Loiro"],
+        instructions: "Escolha as cores de cabelo dos dois 'pais' e veja o resultado."
     },
-    // Ordem ajustada de dominância: Ruivo > Preto > Castanho > Loiro
-    dominance: ["R", "B", "b", "r"],
-    alleleToPhen: {
-      R: "Ruivo",
-      B: "Preto",
-      b: "Castanho",
-      r: "Loiro"
+
+    pele: {
+        // Opções: Preta, Parda, Branca
+        phenToGen: {
+            "Preta": "DD",
+            "Parda": "Dd",
+            "Branca": "dd",
+        },
+        // Mapeamento de Genótipo-Fenótipo para os resultados F1/F2 (Lógica Reversa)
+        genToPhenMap: {
+            "DD": "Preta", 
+            "Dd": "Parda", 
+            "dd": "Branca" 
+        },
+        options: ["Preta", "Parda", "Branca"],
+        instructions: "Escolha os tons de pele dos dois 'pais' e veja o que pode acontecer. Lembre-se que o tom de pele é uma herança complexa com muitos genes!"
     },
-    options: ["Preto", "Castanho", "Ruivo", "Loiro"],
-    instructions: "Escolha as cores do cabelo dos pais e clique em Misturar."
-  },
-  
-  pele: {
-    phenToGen: {
-      "Preta": "DD",
-      "Parda": "Dd",
-      "Branca": "dd",
-      "Amarela": "Aa",
-      "Indígena": "Ii"
-    },
-    dominance: ["D", "A", "I", "d"],
-    alleleToPhen: {
-      D: "Preta",
-      A: "Amarela",
-      I: "Indígena",
-      d: "Branca"
-    },
-    options: ["Preta", "Parda", "Branca", "Amarela", "Indígena"],
-    instructions: "Escolha os tons de pele dos pais e clique em Misturar."
-  }
+    
+    // --- CATEGORIA PERSONALIZADA (Inalterada) ---
+    aa: {
+        phenToGen: { 
+            "AA (Forte)": "AA", 
+            "Aa (Misto)": "Aa", 
+            "aa (Fraco)": "aa" 
+        }, 
+        options: ["AA (Forte)", "Aa (Misto)", "aa (Fraco)"],
+        instructions: "1. Dê um nome divertido ao traço Dominante (Mãe) e ao traço Recessivo (Pai). 2. Escolha os Genótipos."
+    }
 };
 
-// --- Seletores da interface (Assumindo que estes IDs estão no seu HTML) ---
+// --- Seletores da interface (Inalterados) ---
 const telaInicial = document.getElementById("tela-inicial");
 const telaMistura = document.getElementById("tela-mistura");
 const tituloCategoria = document.getElementById("tituloCategoria");
 const instrucoesEl = document.getElementById("instrucoes");
+
 const selectMae = document.getElementById("selectMae");
 const selectPai = document.getElementById("selectPai");
-const resultadoEl = document.getElementById("resultado");
-const btnPersonalizado = document.getElementById("btnPersonalizado");
-const telaPersonalizada = document.getElementById("tela-personalizada");
-const voltarPersonalizadoBtn = document.getElementById("voltarPersonalizadoBtn");
-const misturarPersonalizadoBtn = document.getElementById("misturarPersonalizadoBtn");
-const resetarPersonalizadoBtn = document.getElementById("resetarPersonalizadoBtn");
-const resultadoPersonalizado = document.getElementById("resultadoPersonalizado");
-const genMae = document.getElementById("genMae");
-const genPai = document.getElementById("genPai");
+const formRowSelect = document.getElementById("formRowSelect"); 
 
+const formRowCustom = document.getElementById("formRowCustom"); 
+const resultadoEl = document.getElementById("resultado");
 
 let categoriaAtual = null;
 
-// --- Funções de UI ---
+// --- Eventos (Inalterados) ---
+document.getElementById("btnOlhos").addEventListener("click", () => abrirCategoria("olhos"));
+document.getElementById("btnPele").addEventListener("click", () => abrirCategoria("pele"));
+document.getElementById("btnCabelo").addEventListener("click", () => abrirCategoria("cabelo"));
+document.getElementById("btnAa").addEventListener("click", () => abrirCategoria("aa"));
+document.getElementById("voltarBtn").addEventListener("click", voltarInicio);
+document.getElementById("misturarBtn").addEventListener("click", () => misturar(categoriaAtual));
+document.getElementById("resetarBtn").addEventListener("click", resetarForm);
+
+
+// --- Funções de UI (Inalteradas) ---
+
+function renderCustomUI() {
+    formRowCustom.innerHTML = `
+        <div class="form-group">
+            <label for="nomeTracoMae">Mãe</label>
+            <input type="text" id="nomeTracoMae" placeholder="Nome do Traço Dominante" required>
+            
+            <label for="maeGenCustomSelect" style="margin-top: 15px;">Genótipo Mãe</label>
+            <select id="maeGenCustomSelect" required>
+                ${data.aa.options.map(opt => `<option value="${data.aa.phenToGen[opt]}">${opt}</option>`).join('')}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="nomeTracoPai">Pai</label>
+            <input type="text" id="nomeTracoPai" placeholder="Nome do Traço Recessivo" required>
+
+            <label for="paiGenCustomSelect" style="margin-top: 15px;">Genótipo do Pai</label>
+            <select id="paiGenCustomSelect" required>
+                ${data.aa.options.map(opt => `<option value="${data.aa.phenToGen[opt]}">${opt}</option>`).join('')}
+            </select>
+        </div>
+    `;
+    formRowSelect.classList.add('oculto');
+    formRowCustom.classList.remove('oculto');
+}
+
 function abrirCategoria(cat) {
-  categoriaAtual = cat;
-  const info = data[cat];
-  tituloCategoria.innerText = cat.toUpperCase();
-  instrucoesEl.innerText = info.instructions;
+    categoriaAtual = cat;
+    const info = data[cat];
+    tituloCategoria.innerText = cat === 'aa' ? 'MISTURA CRIATIVA' : cat.toUpperCase();
+    instrucoesEl.innerText = info.instructions;
+    resultadoEl.innerHTML = "";
 
-  selectMae.innerHTML = "";
-  selectPai.innerHTML = "";
+    if (cat === 'aa') {
+        renderCustomUI();
+    } else {
+        formRowCustom.classList.add('oculto');
+        formRowSelect.classList.remove('oculto');
+        
+        selectMae.innerHTML = "";
+        selectPai.innerHTML = "";
 
-  info.options.forEach(opt => {
-    const o1 = document.createElement("option");
-    o1.value = opt;
-    o1.textContent = opt;
-    selectMae.appendChild(o1);
+        info.options.forEach(opt => {
+            const o1 = document.createElement("option");
+            o1.value = opt;
+            o1.textContent = opt;
+            selectMae.appendChild(o1);
 
-    const o2 = document.createElement("option");
-    o2.value = opt;
-    o2.textContent = opt;
-    selectPai.appendChild(o2);
-  });
+            const o2 = document.createElement("option");
+            o2.value = opt;
+            o2.textContent = opt;
+            selectPai.appendChild(o2);
+        });
+    }
 
-  if(telaInicial) telaInicial.classList.add("oculto");
-  if(telaMistura) telaMistura.classList.remove("oculto");
-  if(resultadoEl) resultadoEl.innerHTML = "";
+    telaInicial.classList.add("oculto");
+    telaMistura.classList.remove("oculto");
 }
 
 function voltarInicio() {
-  categoriaAtual = null;
-  if(telaMistura) telaMistura.classList.add("oculto");
-  if(telaInicial) telaInicial.classList.remove("oculto");
-  if(resultadoEl) resultadoEl.innerHTML = "";
+    categoriaAtual = null;
+    telaMistura.classList.add("oculto");
+    telaInicial.classList.remove("oculto");
+    resultadoEl.innerHTML = "";
+    formRowSelect.classList.remove('oculto'); 
+    formRowCustom.classList.add('oculto');
 }
 
 function resetarForm() {
-  if (!categoriaAtual) return;
-  if(selectMae) selectMae.selectedIndex = 0;
-  if(selectPai) selectPai.selectedIndex = 0;
-  if(resultadoEl) resultadoEl.innerHTML = "";
+    if (!categoriaAtual) return;
+    resultadoEl.innerHTML = "";
+    
+    if (categoriaAtual === 'aa') {
+        document.getElementById("nomeTracoMae").value = '';
+        document.getElementById("nomeTracoPai").value = '';
+        document.getElementById("maeGenCustomSelect").selectedIndex = 0;
+        document.getElementById("paiGenCustomSelect").selectedIndex = 0;
+    } else {
+        selectMae.selectedIndex = 0;
+        selectPai.selectedIndex = 0;
+    }
 }
 
-// --- Genética ---
+
+// --- Funções de Genética Corrigidas ---
+
 function punnettSquare(genA, genB) {
-  const gamA = [genA[0], genA[1]];
-  const gamB = [genB[0], genB[1]];
-  const filhos = [];
-  for (let a of gamA) {
-    for (let b of gamB) {
-      // Ordena o genótipo para facilitar a comparação, ex: 'ba' vira 'ab'
-      filhos.push([a, b].sort().join("")); 
+    const gamA = [genA[0], genA[1]];
+    const gamB = [genB[0], genB[1]];
+    const filhos = [];
+    for (let a of gamA) {
+      for (let b of gamB) {
+        // Garante que o genótipo seja sempre ordenado (ex: bB vira Bb)
+        filhos.push([a, b].sort((x, y) => x.localeCompare(y, undefined, { sensitivity: 'base' })).join("")); 
+      }
     }
-  }
-  return filhos;
+    return filhos;
 }
 
+/**
+ * Converte genótipo para Fenótipo (APENAS o nome) para categorias padrão.
+ */
 function genotypeToPhenotype(genotype, cat) {
-  const info = data[cat];
-  
-  // 1. Verifica se o genótipo completo está explicitamente definido (ex: "PP", "aa", "bb")
-  const genKey = Object.keys(info.phenToGen).find(key => info.phenToGen[key] === genotype);
-  if (genKey) {
-    return genKey;
-  }
-  
-  // 2. Aplica a regra de dominância (do mais dominante ao menos)
-  for (let allele of info.dominance) {
-    if (genotype.includes(allele)) {
-      return info.alleleToPhen[allele];
+    const info = data[cat];
+    const genP = genotype; 
+
+    // **LÓGICA DE PELE:** Usa o genToPhenMap.
+    if (cat === 'pele') {
+        return info.genToPhenMap[genP];
     }
-  }
-  
-  return "Desconhecido";
+
+    // Lógica para Cabelo (Dominância Incompleta/Co-dominância)
+    if (cat === 'cabelo') {
+        if (genP === 'BB') return "Preto";
+        if (genP === 'Bb') return "Castanho";
+        if (genP === 'bb') return "Loiro";
+        return;
+    }
+
+    // Lógica para 'olhos' (Simplificada)
+    if (cat === 'olhos') {
+        if (genP === 'PP') return "Preto";
+        if (genP === 'AA' || genP === 'Aa') return "Castanho"; // AA, Aa (Híbrido)
+        if (genP === 'aa') return "Verde"; // aa (Recessivo)
+        
+        return; 
+    }
+    
+    return; // Retorna undefined para ser ignorado
+}
+
+function genotypeToPhenotypeCustom(genotype) {
+    const nomeTracoDominante = document.getElementById("nomeTracoMae").value.trim() || "Traço Dominante";
+    const nomeTracoRecessivo = document.getElementById("nomeTracoPai").value.trim() || "Traço Recessivo";
+    
+    // Genótipos: AA (Dominante), Aa (Misto), aa (Recessivo)
+    if (genotype.includes('A')) {
+        return nomeTracoDominante; 
+    }
+    if (genotype.includes('a') && !genotype.includes('A')) {
+        return nomeTracoRecessivo; 
+    }
+    return; // Retorna undefined para ser ignorado
 }
 
 function contarFenotipos(lista) {
-  const cont = {};
-  // Filtra resultados "Mel" se ainda houver algum resíduo, embora a lógica deva evitar.
-  const filteredList = lista.filter(p => p !== "Mel");
-  
-  filteredList.forEach(f => cont[f] = (cont[f] || 0) + 1);
-  
-  // Garante que o cálculo de porcentagem use a lista filtrada (se necessário)
-  const total = filteredList.length > 0 ? filteredList.length : lista.length; 
-  
-  Object.keys(cont).forEach(k => cont[k] = ((cont[k] / total) * 100).toFixed(1));
-  return cont;
-}
+    const cont = {};
+    lista.forEach(f => cont[f] = (cont[f] || 0) + 1);
+    
+    const total = lista.length; // Sempre 4 resultados
+    const porcentagens = {};
 
+    Object.keys(cont).forEach(k => {
+        // Cálculo da porcentagem sobre 4 resultados (25%, 50%, 75%, 100%)
+        porcentagens[k] = ((cont[k] / total) * 100).toFixed(1); 
+    });
+
+    return porcentagens;
+}
 
 function calcularGeracoes(cat, mae, pai) {
-  const info = data[cat];
-  const genMae = info.phenToGen[mae];
-  const genPai = info.phenToGen[pai];
+    let genMae, genPai;
 
-  // --- OVERRIDE SOLICITADO: Tratamento especial para o cruzamento Olhos Verde (aa) x Azul (bb) ---
-  if (cat === "olhos" && 
-      ((mae === "Verde" && pai === "Azul") || (mae === "Azul" && pai === "Verde"))) {
-    
-    // Força o resultado 50.0% Verde e 50.0% Azul na F1 (Conforme sua primeira solicitação)
-    const contF1Corrigido = {
-      "Verde": "50.0",
-      "Azul": "50.0"
-    };
-
-    // F2: Neste cenário, o genótipo F1 seria 100% 'ab'. Sem "Mel", 'ab' se resolve para "Azul" (b > a).
-    // Para a F2, cruzamos 'ab' x 'ab', que resulta em: AA, Ab, Ab, bb. 
-    // Que se traduz em: Castanho (A domina b e a), Azul (b domina a), Azul (b domina a), Azul (bb).
-    // O resultado F2 será baseado no cálculo normal (punnettSquare('ab', 'ab'))
-    const filhosF1Genotipos = ["ab", "ab", "ab", "ab"]; 
-    
-    const filhosF2 = [];
-    // Para simplificar, fazemos um cruzamento de todos os genótipos F1 entre si
-    for (let i = 0; i < filhosF1Genotipos.length; i++) {
-        for (let j = i; j < filhosF1Genotipos.length; j++) {
-            // Cruza o genótipo F1 (ab) x F1 (ab)
-            filhosF2.push(...punnettSquare(filhosF1Genotipos[i], filhosF1Genotipos[j])); 
-        }
+    if (cat === 'aa') {
+      genMae = mae; 
+      genPai = pai;
+    } else {
+      const info = data[cat];
+      genMae = info.phenToGen[mae];
+      genPai = info.phenToGen[pai];
     }
-    const fenotiposF2 = filhosF2.map(f => genotypeToPhenotype(f, cat));
+    
+    const filhosF1 = punnettSquare(genMae, genPai);
+    const fenotiposF1 = filhosF1.map(f => {
+      return cat === 'aa' ? genotypeToPhenotypeCustom(f) : genotypeToPhenotype(f, cat);
+    }).filter(f => f); // Filtra resultados undefined/nulos/Resultado Não Mapeado
+    const contF1 = contarFenotipos(fenotiposF1);
+    
+    const genotiposContF1 = contarFenotipos(filhosF1);
+    const sortedGenotiposF1 = Object.entries(genotiposContF1).sort((a, b) => parseFloat(b[1]) - parseFloat(a[1]));
+    
+    // Lógica F2: Cruza o genótipo de maior frequência com o segundo maior (ou ele mesmo se 100%).
+    const genF2_Pai1 = sortedGenotiposF1[0] ? sortedGenotiposF1[0][0] : genMae;
+    
+    let genF2_Pai2;
+    if (sortedGenotiposF1.length === 1 && parseFloat(sortedGenotiposF1[0][1]) === 100.0) {
+        // Se 100% de um genótipo, cruza ele com ele mesmo (ex: Dd x Dd)
+        genF2_Pai2 = genF2_Pai1; 
+    } else {
+        // Caso contrário, cruza o 1º maior com o 2º maior
+        genF2_Pai2 = sortedGenotiposF1[1] ? sortedGenotiposF1[1][0] : genF2_Pai1;
+    }
+
+    const filhosF2 = punnettSquare(genF2_Pai1, genF2_Pai2);
+    
+    const fenotiposF2 = filhosF2.map(f => {
+      return cat === 'aa' ? genotypeToPhenotypeCustom(f) : genotypeToPhenotype(f, cat);
+    }).filter(f => f); 
     const contF2 = contarFenotipos(fenotiposF2);
 
+    return { 
+        F1: contF1, 
+        F2: contF2, 
+        genF2_Pai1: genF2_Pai1, 
+        finalGenF2_Pai2: genF2_Pai2 // Corrigido o nome da variável de retorno
+    };
+}
 
-    return { F1: contF1Corrigido, F2: contF2 };
-  }
-  // --- FIM DO TRATAMENTO ESPECIAL ---
+function gerarPunnettHTML(genA, genB) {
+    const gamA = [genA[0], genA[1]];
+    const gamB = [genB[0], genB[1]];
+    const filhos = punnettSquare(genA, genB); 
 
-  // F1 (Cálculo normal para os outros casos)
-  const filhosF1 = punnettSquare(genMae, genPai);
-  const fenotiposF1 = filhosF1.map(f => genotypeToPhenotype(f, cat));
-  const contF1 = contarFenotipos(fenotiposF1);
-
-  // F2 — cruzando F1 entre si (Cálculo normal)
-  const filhosF2 = [];
-  const genotiposF1Unicos = [...new Set(filhosF1)];
-  
-  for (let i = 0; i < genotiposF1Unicos.length; i++) {
-    for (let j = 0; j < genotiposF1Unicos.length; j++) {
-      filhosF2.push(...punnettSquare(genotiposF1Unicos[i], genotiposF1Unicos[j]));
-    }
-  }
-  
-  const fenotiposF2 = filhosF2.map(f => genotypeToPhenotype(f, cat));
-  const contF2 = contarFenotipos(fenotiposF2);
-
-  return { F1: contF1, F2: contF2 };
+    let html = `
+        <table class="punnett-square">
+            <tr>
+                <th></th>
+                <th>${gamB[0]}</th>
+                <th>${gamB[1]}</th>
+            </tr>
+            <tr>
+                <th>${gamA[0]}</th>
+                <td>${filhos[0]}</td>
+                <td>${filhos[1]}</td>
+            </tr>
+            <tr>
+                <th>${gamA[1]}</th>
+                <td>${filhos[2]}</td>
+                <td>${filhos[3]}</td>
+            </tr>
+        </table>
+    `;
+    return html;
 }
 
 
-// --- Misturar (função principal) ---
+// --- Função Principal de Mistura (Termos de Geração e Exibição Corrigidos) ---
+
 function misturar(cat) {
-  if (!cat) return;
-  const mae = selectMae.value;
-  const pai = selectPai.value;
-  
-  const { F1, F2 } = calcularGeracoes(cat, mae, pai);
+    if (!cat) return;
 
-  let html = `<p><strong>Combinações possíveis — ${cat.toUpperCase()}</strong></p>`;
-  html += `<p><strong>1ª Geração (F1):</strong></p>`;
-  const sortedF1 = Object.entries(F1).sort((a, b) => b[1] - a[1]);
-  for (const [p, v] of sortedF1) html += `<p>${p}: ${v}%</p>`;
+    let F1, F2;
+    let nomeTraco;
+    let genMae, genPai;
 
-  html += `<p><strong>2ª Geração (F2):</strong></p>`;
-  const sortedF2 = Object.entries(F2).sort((a, b) => b[1] - a[1]);
-  for (const [p, v] of sortedF2) html += `<p>${p}: ${v}%</p>`;
+    if (cat === 'aa') {
+        const nomeMae = document.getElementById("nomeTracoMae").value;
+        const nomePai = document.getElementById("nomeTracoPai").value;
+        
+        nomeTraco = `TRAÇOS: ${nomeMae.trim()} e ${nomePai.trim()}`; 
+        
+        genMae = document.getElementById("maeGenCustomSelect").value;
+        genPai = document.getElementById("paiGenCustomSelect").value;
 
-  if(resultadoEl) resultadoEl.innerHTML = html;
-}
+        if (!nomeMae || !nomePai || !genMae || !genPai) {
+            resultadoEl.innerHTML = '<p style="color: red; font-weight: bold;">Ops! Não esqueça de preencher os nomes e genótipos.</p>';
+            return;
+        }
 
-// --- Funções para a mistura personalizada (se presentes no HTML) ---
-function misturarPersonalizado() {
-  if (!genMae || !genPai || !resultadoPersonalizado) return;
-  const mae = genMae.value.replace("_", "A"); // trata o A_ como dominante
-  const pai = genPai.value.replace("_", "A");
+        const resultados = calcularGeracoes(cat, genMae, genPai);
+        F1 = resultados.F1; 
+        F2 = resultados.F2;
 
-  const filhos = punnettSquare(mae, pai);
+    } else {
+        const mae = selectMae.value;
+        const pai = selectPai.value;
+        const info = data[cat];
+        
+        genMae = info.phenToGen[mae];
+        genPai = info.phenToGen[pai];
 
-  // conta resultados
-  const cont = {};
-  filhos.forEach(f => cont[f] = (cont[f] || 0) + 1);
-  Object.keys(cont).forEach(k => cont[k] = ((cont[k] / filhos.length) * 100).toFixed(1));
+        const resultados = calcularGeracoes(cat, mae, pai);
+        F1 = resultados.F1; 
+        F2 = resultados.F2;
 
-  let html = `<p><strong>Combinações possíveis — Genótipos</strong></p>`;
-  for (const [g, v] of Object.entries(cont)) {
-    html += `<p>${g}: <strong>${v}%</strong></p>`;
-  }
+        nomeTraco = cat.toUpperCase();
+    }
 
-  resultadoPersonalizado.innerHTML = html;
-}
+    // --- Exibição CORRIGIDA ---
+    
+    let html = `<div class="resultado-box"><p><strong>O que acontece quando misturamos ${nomeTraco}?</strong></p>`;
+    
+    // Quadrado de Punnett 
+    html += gerarPunnettHTML(genMae, genPai);
 
-
-// --- Eventos ---
-if(document.getElementById("btnOlhos")) document.getElementById("btnOlhos").addEventListener("click", () => abrirCategoria("olhos"));
-if(document.getElementById("btnPele")) document.getElementById("btnPele").addEventListener("click", () => abrirCategoria("pele"));
-if(document.getElementById("btnCabelo")) document.getElementById("btnCabelo").addEventListener("click", () => abrirCategoria("cabelo"));
-if(document.getElementById("voltarBtn")) document.getElementById("voltarBtn").addEventListener("click", voltarInicio);
-if(document.getElementById("misturarBtn")) document.getElementById("misturarBtn").addEventListener("click", () => misturar(categoriaAtual));
-if(document.getElementById("resetarBtn")) document.getElementById("resetarBtn").addEventListener("click", resetarForm);
-
-// Eventos da tela personalizada
-if(btnPersonalizado) {
-    btnPersonalizado.addEventListener("click", () => {
-        if(telaInicial) telaInicial.classList.add("oculto");
-        if(telaPersonalizada) telaPersonalizada.classList.remove("oculto");
-        if(resultadoPersonalizado) resultadoPersonalizado.innerHTML = "";
+    // Formatar F1 -> Primeira Ninhada (Filhotes)
+    html += `<p class="result-title"><strong>Primeiro filho:</strong></p>`; 
+    const entriesF1 = Object.entries(F1).sort((a, b) => parseFloat(b[1]) - parseFloat(a[1])); 
+    entriesF1.forEach(([phen, perc]) => {
+        if (phen !== "Resultado Não Mapeado") { 
+            html += `<p>${phen}: <strong>${perc}%</strong> (Chance)</p>`; 
+        }
     });
-}
 
-if(voltarPersonalizadoBtn) {
-    voltarPersonalizadoBtn.addEventListener("click", () => {
-        if(telaPersonalizada) telaPersonalizada.classList.add("oculto");
-        if(telaInicial) telaInicial.classList.remove("oculto");
+    // Formatar F2 -> Segunda Ninhada (Netos dos Pais)
+    html += `<p class="result-title" style="margin-top: 25px;"><strong>Netos dos Pais</strong></p>`; 
+    const entriesF2 = Object.entries(F2).sort((a, b) => parseFloat(b[1]) - parseFloat(a[1])); 
+    entriesF2.forEach(([phen, perc]) => {
+        if (phen !== "Resultado Não Mapeado") {
+            html += `<p>${phen}: <strong>${perc}%</strong> (Chance)</p>`;
+        }
     });
-}
-
-if(resetarPersonalizadoBtn) {
-    resetarPersonalizadoBtn.addEventListener("click", () => {
-        if(genMae) genMae.selectedIndex = 0;
-        if(genPai) genPai.selectedIndex = 0;
-        if(resultadoPersonalizado) resultadoPersonalizado.innerHTML = "";
-    });
-}
-
-if(misturarPersonalizadoBtn) {
-    misturarPersonalizadoBtn.addEventListener("click", misturarPersonalizado);
+    
+    html += `</div>`;
+    resultadoEl.innerHTML = html;
 }

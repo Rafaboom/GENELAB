@@ -1,64 +1,76 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DNA MIX</title>
-  
-  <link rel="icon" type="image/png" href="img/resolução.png">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misturador Genético</title>
+    <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
-  <header class="topo">
+
+    <header class="topo">
+        <img src="img/resolução.png" alt="Logo" class="logo"> 
+        <h1>Misturador Genético</h1>
     </header>
 
-  <main id="tela-inicial" class="tela inicial">
-    <p class="lead">Escolha uma das opções abaixo para começar.  
-      Selecione as características dos pais e descubra quais combinações genéticas podem aparecer nos filhos!
-    </p>
-    <div class="opcoes-container">
-      <div class="opcao" id="btnOlhos" tabindex="0" role="button" aria-label="Olhos">
-        <img src="img/olho.png" alt="Olhos">
-        <span>OLHOS</span>
-      </div>
-      <div class="opcao" id="btnPele" tabindex="0" role="button" aria-label="Pele">
-        <img src="img/pele.png" alt="Pele">
-        <span>PELE</span>
-      </div>
-      <div class="opcao" id="btnCabelo" tabindex="0" role="button" aria-label="Cabelo">
-        <img src="img/cabelo.png" alt="Cabelo">
-        <span>CABELO</span>
-      </div>
-    </div>
-  </main>
+    <section id="tela-inicial" class="tela inicial">
+        <h2>Simulador de Herança Genética</h2>
+        <p class="lead">Escolha um traço genético para simular o cruzamento entre os pais e as gerações futuras.</p>
+        
+        <div class="opcoes-container">
+            
+            <div class="opcao" id="btnOlhos">
+                <img src="img/olho.png" alt="Olhos"> 
+                <span>Olhos</span>
+            </div>
 
-  <section id="tela-mistura" class="tela mistura oculto">
-    <div class="card">
-      <h2 id="tituloCategoria">MISTURA &amp; DESCUBRA</h2>
-      <p class="instrucoes" id="instrucoes">Escolha as características dos pais e clique em <strong>Misturar</strong>.</p>
+            <div class="opcao" id="btnPele">
+                <img src="img/pele.png" alt="Pele"> 
+                <span>Pele</span>
+            </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="selectMae" id="labelMae">Mãe</label>
-          <select id="selectMae"></select>
+            <div class="opcao" id="btnCabelo">
+                <img src="img/cabelo.png" alt="Cabelo"> 
+                <span>Cabelo</span>
+            </div>
+            
+            <div class="opcao" id="btnAa">
+                <img src="img/aa.png" alt="Personalizado Aa"> 
+                <span>Aa</span>
+            </div>
         </div>
+    </section>
 
-        <div class="form-group">
-          <label for="selectPai" id="labelPai">Pai</label>
-          <select id="selectPai"></select>
+    <section id="tela-mistura" class="tela mistura oculto">
+        <div class="card">
+            <h2 id="tituloCategoria">CATEGORIA</h2>
+            <p id="instrucoes" class="instrucoes">Instruções...</p>
+
+            <div id="formRowSelect" class="form-row">
+                <div class="form-group">
+                    <label for="selectMae">Mãe</label>
+                    <select id="selectMae"></select>
+                </div>
+                <div class="form-group">
+                    <label for="selectPai">Pai</label>
+                    <select id="selectPai"></select>
+                </div>
+            </div>
+
+            <div id="formRowCustom" class="form-row oculto">
+                </div>
+
+            <div class="botoes">
+                <button id="misturarBtn"> Misturar</button>
+                <button id="resetarBtn" class="sec">Limpar</button>
+                <button id="voltarBtn" class="voltar">Voltar</button>
+            </div>
+
+            <div id="resultado" class="resultado">
+                </div>
         </div>
-      </div>
+    </section>
 
-      <div class="botoes">
-        <button type="button" id="misturarBtn">Misturar</button>
-        <button type="button" id="resetarBtn" class="sec">Resetar</button>
-        <button type="button" id="voltarBtn" class="sec voltar">← Voltar às opções</button>
-      </div>
-
-      <div id="resultado" class="resultado" aria-live="polite"></div>
-    </div>
-  </section>
-
-  <script src="script.Js"></script>
+    <script src="script.js"></script> 
 </body>
 </html>
