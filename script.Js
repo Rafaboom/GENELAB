@@ -1,29 +1,30 @@
 // --- Dados genéticos COMPACTADOS (Corrigido para 3 opções) ---
 const data = {
     olhos: {
-        // Opções: Preto, Castanho, Verde
+        // Opções: Preto (PP), Castanho (AA/Aa), Verde (aa)
         phenToGen: {
-            "Preto": "PP",       // PP
-            "Castanho": "AA",    // AA
-            "Verde": "aa"        // aa
+            "Preto": "PP",
+            "Castanho": "AA",
+            "Verde": "aa"
         },
+        // O genótipo híbrido (Aa) resultará em Castanho
         options: ["Preto", "Castanho", "Verde"],
         instructions: "Escolha as características dos dois 'pais' e veja como a 'mistura' acontece!"
     },
 
     cabelo: {
-        // Opções: Preto (BB), Castanho (Bb), Loiro (bb)
+        // Opções: Preto (BB), Castanho (Bb), Loiro (bb) - Co-dominância/Dominância Incompleta
         phenToGen: {
             "Preto": "BB",
             "Castanho": "Bb",
-            "Loiro": "bb",    
+            "Loiro": "bb",
         },
         options: ["Preto", "Castanho", "Loiro"],
         instructions: "Escolha as cores de cabelo dos dois 'pais' e veja o resultado."
     },
 
     pele: {
-        // Opções: Preta, Parda, Branca
+        // Opções: Preta (DD), Parda (Dd), Branca (dd) - Herança quantitativa simplificada
         phenToGen: {
             "Preta": "DD",
             "Parda": "Dd",
@@ -31,21 +32,21 @@ const data = {
         },
         // Mapeamento de Genótipo-Fenótipo para os resultados F1/F2 (Lógica Reversa)
         genToPhenMap: {
-            "DD": "Preta", 
-            "Dd": "Parda", 
-            "dd": "Branca" 
+            "DD": "Preta",
+            "Dd": "Parda",
+            "dd": "Branca"
         },
         options: ["Preta", "Parda", "Branca"],
         instructions: "Escolha os tons de pele dos dois 'pais' e veja o que pode acontecer. Lembre-se que o tom de pele é uma herança complexa com muitos genes!"
     },
-    
+
     // --- CATEGORIA PERSONALIZADA (Inalterada) ---
     aa: {
-        phenToGen: { 
-            "AA (Forte)": "AA", 
-            "Aa (Misto)": "Aa", 
-            "aa (Fraco)": "aa" 
-        }, 
+        phenToGen: {
+            "AA (Forte)": "AA",
+            "Aa (Misto)": "Aa",
+            "aa (Fraco)": "aa"
+        },
         options: ["AA (Forte)", "Aa (Misto)", "aa (Fraco)"],
         instructions: "1. Dê um nome divertido ao traço Dominante (Mãe) e ao traço Recessivo (Pai). 2. Escolha os Genótipos."
     }
@@ -59,9 +60,9 @@ const instrucoesEl = document.getElementById("instrucoes");
 
 const selectMae = document.getElementById("selectMae");
 const selectPai = document.getElementById("selectPai");
-const formRowSelect = document.getElementById("formRowSelect"); 
+const formRowSelect = document.getElementById("formRowSelect");
 
-const formRowCustom = document.getElementById("formRowCustom"); 
+const formRowCustom = document.getElementById("formRowCustom");
 const resultadoEl = document.getElementById("resultado");
 
 let categoriaAtual = null;
@@ -83,7 +84,7 @@ function renderCustomUI() {
         <div class="form-group">
             <label for="nomeTracoMae">Mãe</label>
             <input type="text" id="nomeTracoMae" placeholder="Nome do Traço Dominante" required>
-            
+
             <label for="maeGenCustomSelect" style="margin-top: 15px;">Genótipo Mãe</label>
             <select id="maeGenCustomSelect" required>
                 ${data.aa.options.map(opt => `<option value="${data.aa.phenToGen[opt]}">${opt}</option>`).join('')}
@@ -116,23 +117,26 @@ function abrirCategoria(cat) {
     } else {
         formRowCustom.classList.add('oculto');
         formRowSelect.classList.remove('oculto');
-        
+
         selectMae.innerHTML = "";
         selectPai.innerHTML = "";
 
-        info.options.forEach(opt => {
+        // **Ajuste para garantir que as opções do select apareçam e tenham o FENÓTIPO como valor**
+        // Isso é necessário para que a função `calcularGeracoes` consiga buscar o genótipo correto.
+        info.options.forEach(phenotype => {
             const o1 = document.createElement("option");
-            o1.value = opt;
-            o1.textContent = opt;
+            o1.value = phenotype;
+            o1.textContent = phenotype;
             selectMae.appendChild(o1);
 
             const o2 = document.createElement("option");
-            o2.value = opt;
-            o2.textContent = opt;
+            o2.value = phenotype;
+            o2.textContent = phenotype;
             selectPai.appendChild(o2);
         });
     }
 
+    // Oculta a tela inicial e mostra a tela de mistura
     telaInicial.classList.add("oculto");
     telaMistura.classList.remove("oculto");
 }
@@ -142,14 +146,14 @@ function voltarInicio() {
     telaMistura.classList.add("oculto");
     telaInicial.classList.remove("oculto");
     resultadoEl.innerHTML = "";
-    formRowSelect.classList.remove('oculto'); 
+    formRowSelect.classList.remove('oculto');
     formRowCustom.classList.add('oculto');
 }
 
 function resetarForm() {
     if (!categoriaAtual) return;
     resultadoEl.innerHTML = "";
-    
+
     if (categoriaAtual === 'aa') {
         document.getElementById("nomeTracoMae").value = '';
         document.getElementById("nomeTracoPai").value = '';
@@ -171,7 +175,7 @@ function punnettSquare(genA, genB) {
     for (let a of gamA) {
       for (let b of gamB) {
         // Garante que o genótipo seja sempre ordenado (ex: bB vira Bb)
-        filhos.push([a, b].sort((x, y) => x.localeCompare(y, undefined, { sensitivity: 'base' })).join("")); 
+        filhos.push([a, b].sort((x, y) => x.localeCompare(y, undefined, { sensitivity: 'base' })).join(""));
       }
     }
     return filhos;
@@ -182,9 +186,9 @@ function punnettSquare(genA, genB) {
  */
 function genotypeToPhenotype(genotype, cat) {
     const info = data[cat];
-    const genP = genotype; 
+    const genP = genotype;
 
-    // **LÓGICA DE PELE:** Usa o genToPhenMap.
+    // LÓGICA DE PELE: Usa o genToPhenMap.
     if (cat === 'pele') {
         return info.genToPhenMap[genP];
     }
@@ -194,45 +198,58 @@ function genotypeToPhenotype(genotype, cat) {
         if (genP === 'BB') return "Preto";
         if (genP === 'Bb') return "Castanho";
         if (genP === 'bb') return "Loiro";
-        return;
+        return "Resultado Não Mapeado"; // Retorno de segurança
     }
 
     // Lógica para 'olhos' (Simplificada)
     if (cat === 'olhos') {
         if (genP === 'PP') return "Preto";
-        if (genP === 'AA' || genP === 'Aa') return "Castanho"; // AA, Aa (Híbrido)
-        if (genP === 'aa') return "Verde"; // aa (Recessivo)
+        // 'AA' é o genótipo Castanho puro, mas o híbrido é 'Pa' (do cruzamento) ou 'Aa' (depende do seu alelo)
+        // O seu mapa genético simplificado (P = Preto, A = Castanho, a = Verde) é um pouco incomum.
+        // Vamos manter a lógica original: AA ou qualquer 'A' domina sobre 'a' (Verde).
+        // Aqui, os cruzamentos podem gerar: PP, PA, Pa, Aa, aa.
         
-        return; 
+        // CORREÇÃO: Vamos usar o genótipo que o Punnett Square gerou:
+        // Se usar (P, A, a):
+        if (genP.includes('P')) return "Preto"; // Ex: PP, PA, Pa
+        if (genP.includes('A')) return "Castanho"; // Ex: AA, Aa (Sem P)
+        if (genP === 'aa') return "Verde";
+        
+        return "Resultado Não Mapeado"; // Retorno de segurança
     }
-    
-    return; // Retorna undefined para ser ignorado
+
+    return "Resultado Não Mapeado"; // Retorna para ser ignorado
 }
 
 function genotypeToPhenotypeCustom(genotype) {
     const nomeTracoDominante = document.getElementById("nomeTracoMae").value.trim() || "Traço Dominante";
     const nomeTracoRecessivo = document.getElementById("nomeTracoPai").value.trim() || "Traço Recessivo";
-    
+
     // Genótipos: AA (Dominante), Aa (Misto), aa (Recessivo)
-    if (genotype.includes('A')) {
-        return nomeTracoDominante; 
+    // Para a categoria 'aa', o fenótipo deve ser diferente para 'Aa'
+    if (genotype === 'AA') {
+        return nomeTracoDominante;
     }
-    if (genotype.includes('a') && !genotype.includes('A')) {
-        return nomeTracoRecessivo; 
+    if (genotype === 'Aa') {
+        return `${nomeTracoDominante} e ${nomeTracoRecessivo} (Misto)`;
     }
-    return; // Retorna undefined para ser ignorado
+    if (genotype === 'aa') {
+        return nomeTracoRecessivo;
+    }
+
+    return "Resultado Não Mapeado"; // Retorna para ser ignorado
 }
 
 function contarFenotipos(lista) {
     const cont = {};
     lista.forEach(f => cont[f] = (cont[f] || 0) + 1);
-    
+
     const total = lista.length; // Sempre 4 resultados
     const porcentagens = {};
 
     Object.keys(cont).forEach(k => {
         // Cálculo da porcentagem sobre 4 resultados (25%, 50%, 75%, 100%)
-        porcentagens[k] = ((cont[k] / total) * 100).toFixed(1); 
+        porcentagens[k] = ((cont[k] / total) * 100).toFixed(1);
     });
 
     return porcentagens;
@@ -242,54 +259,55 @@ function calcularGeracoes(cat, mae, pai) {
     let genMae, genPai;
 
     if (cat === 'aa') {
-      genMae = mae; 
-      genPai = pai;
+      genMae = mae; // Já é o genótipo (ex: AA)
+      genPai = pai; // Já é o genótipo (ex: aa)
     } else {
       const info = data[cat];
+      // mae e pai são os FENÓTIPOS (ex: "Preto")
       genMae = info.phenToGen[mae];
       genPai = info.phenToGen[pai];
     }
-    
+
     const filhosF1 = punnettSquare(genMae, genPai);
     const fenotiposF1 = filhosF1.map(f => {
       return cat === 'aa' ? genotypeToPhenotypeCustom(f) : genotypeToPhenotype(f, cat);
-    }).filter(f => f); // Filtra resultados undefined/nulos/Resultado Não Mapeado
+    }).filter(f => f && f !== "Resultado Não Mapeado"); // Filtra resultados inválidos
     const contF1 = contarFenotipos(fenotiposF1);
-    
+
     const genotiposContF1 = contarFenotipos(filhosF1);
     const sortedGenotiposF1 = Object.entries(genotiposContF1).sort((a, b) => parseFloat(b[1]) - parseFloat(a[1]));
-    
+
     // Lógica F2: Cruza o genótipo de maior frequência com o segundo maior (ou ele mesmo se 100%).
     const genF2_Pai1 = sortedGenotiposF1[0] ? sortedGenotiposF1[0][0] : genMae;
-    
+
     let genF2_Pai2;
     if (sortedGenotiposF1.length === 1 && parseFloat(sortedGenotiposF1[0][1]) === 100.0) {
         // Se 100% de um genótipo, cruza ele com ele mesmo (ex: Dd x Dd)
-        genF2_Pai2 = genF2_Pai1; 
+        genF2_Pai2 = genF2_Pai1;
     } else {
         // Caso contrário, cruza o 1º maior com o 2º maior
         genF2_Pai2 = sortedGenotiposF1[1] ? sortedGenotiposF1[1][0] : genF2_Pai1;
     }
 
     const filhosF2 = punnettSquare(genF2_Pai1, genF2_Pai2);
-    
+
     const fenotiposF2 = filhosF2.map(f => {
       return cat === 'aa' ? genotypeToPhenotypeCustom(f) : genotypeToPhenotype(f, cat);
-    }).filter(f => f); 
+    }).filter(f => f && f !== "Resultado Não Mapeado");
     const contF2 = contarFenotipos(fenotiposF2);
 
-    return { 
-        F1: contF1, 
-        F2: contF2, 
-        genF2_Pai1: genF2_Pai1, 
-        finalGenF2_Pai2: genF2_Pai2 // Corrigido o nome da variável de retorno
+    return {
+        F1: contF1,
+        F2: contF2,
+        genF2_Pai1: genF2_Pai1,
+        finalGenF2_Pai2: genF2_Pai2
     };
 }
 
 function gerarPunnettHTML(genA, genB) {
     const gamA = [genA[0], genA[1]];
     const gamB = [genB[0], genB[1]];
-    const filhos = punnettSquare(genA, genB); 
+    const filhos = punnettSquare(genA, genB);
 
     let html = `
         <table class="punnett-square">
@@ -322,65 +340,75 @@ function misturar(cat) {
     let F1, F2;
     let nomeTraco;
     let genMae, genPai;
+    let mae, pai;
 
     if (cat === 'aa') {
         const nomeMae = document.getElementById("nomeTracoMae").value;
         const nomePai = document.getElementById("nomeTracoPai").value;
-        
-        nomeTraco = `TRAÇOS: ${nomeMae.trim()} e ${nomePai.trim()}`; 
-        
-        genMae = document.getElementById("maeGenCustomSelect").value;
-        genPai = document.getElementById("paiGenCustomSelect").value;
 
-        if (!nomeMae || !nomePai || !genMae || !genPai) {
+        nomeTraco = `TRAÇOS: ${nomeMae.trim()} e ${nomePai.trim()}`;
+
+        mae = document.getElementById("maeGenCustomSelect").value;
+        pai = document.getElementById("paiGenCustomSelect").value;
+        genMae = mae;
+        genPai = pai;
+
+        if (!nomeMae || !nomePai || !mae || !pai) {
             resultadoEl.innerHTML = '<p style="color: red; font-weight: bold;">Ops! Não esqueça de preencher os nomes e genótipos.</p>';
             return;
         }
 
-        const resultados = calcularGeracoes(cat, genMae, genPai);
-        F1 = resultados.F1; 
+        const resultados = calcularGeracoes(cat, mae, pai);
+        F1 = resultados.F1;
         F2 = resultados.F2;
 
     } else {
-        const mae = selectMae.value;
-        const pai = selectPai.value;
+        mae = selectMae.value;
+        pai = selectPai.value;
         const info = data[cat];
-        
+
+        // Obtém o Genótipo a partir do Fenótipo selecionado
         genMae = info.phenToGen[mae];
         genPai = info.phenToGen[pai];
+        
+        // Verifica se os genótipos foram encontrados
+        if (!genMae || !genPai) {
+             resultadoEl.innerHTML = '<p style="color: red; font-weight: bold;">Erro: Genótipo não encontrado para a combinação de fenótipos.</p>';
+             return;
+        }
 
         const resultados = calcularGeracoes(cat, mae, pai);
-        F1 = resultados.F1; 
+        F1 = resultados.F1;
         F2 = resultados.F2;
 
         nomeTraco = cat.toUpperCase();
     }
 
     // --- Exibição CORRIGIDA ---
-    
+
     let html = `<div class="resultado-box"><p><strong>O que acontece quando misturamos ${nomeTraco}?</strong></p>`;
-    
-    // Quadrado de Punnett 
+
+    // Quadrado de Punnett
     html += gerarPunnettHTML(genMae, genPai);
 
     // Formatar F1 -> Primeira Ninhada (Filhotes)
-    html += `<p class="result-title"><strong>Primeiro filho:</strong></p>`; 
-    const entriesF1 = Object.entries(F1).sort((a, b) => parseFloat(b[1]) - parseFloat(a[1])); 
+    html += `<p class="result-title"><strong>Primeiro filho:</strong></p>`;
+    const entriesF1 = Object.entries(F1).sort((a, b) => parseFloat(b[1]) - parseFloat(a[1]));
     entriesF1.forEach(([phen, perc]) => {
-        if (phen !== "Resultado Não Mapeado") { 
-            html += `<p>${phen}: <strong>${perc}%</strong> (Chance)</p>`; 
+        if (phen !== "Resultado Não Mapeado") {
+            html += `<p>${phen}: <strong>${perc}%</strong> (Chance)</p>`;
         }
     });
 
     // Formatar F2 -> Segunda Ninhada (Netos dos Pais)
-    html += `<p class="result-title" style="margin-top: 25px;"><strong>Netos dos Pais</strong></p>`; 
-    const entriesF2 = Object.entries(F2).sort((a, b) => parseFloat(b[1]) - parseFloat(a[1])); 
+    html += `<p class="result-title" style="margin-top: 25px;"><strong>Netos dos Pais</strong></p>`;
+    const entriesF2 = Object.entries(F2).sort((a, b) => parseFloat(b[1]) - parseFloat(a[1]));
     entriesF2.forEach(([phen, perc]) => {
         if (phen !== "Resultado Não Mapeado") {
             html += `<p>${phen}: <strong>${perc}%</strong> (Chance)</p>`;
         }
     });
-    
+
     html += `</div>`;
     resultadoEl.innerHTML = html;
 }
